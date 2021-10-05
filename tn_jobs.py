@@ -63,6 +63,7 @@ def scrape_jobs(page):
 
 
 if __name__ == '__main__':
+    print('running again')
     scrape_jobs()
 #     job_title = html.find_all('span', id=re.compile("SCH_JOB_TITLE\$.*"))
 #     job_id = html.find_all('span', id=re.compile("HRS_APP_JBSCH_I_HRS_JOB_OPENING_ID\$.*"))
