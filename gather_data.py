@@ -28,6 +28,8 @@ def gather_data():
         if conn is not None:
             create_table(conn)
             print('Table created or exists')
+            create_views(conn)
+            print('views created')
         else:
             print('Cannot create table')
             sys.exit()
@@ -109,7 +111,7 @@ def gather_data():
             #update_dates_posted(conn, a.get_text())
 
         create_fips(conn)
-        create_views(conn)
+        #create_views(conn)
 
         #closing connection
 
