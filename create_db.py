@@ -10,36 +10,42 @@ import pandas as pd
 
 
 def readConfig(cfg):
-    localpath = Path(Path.home()/'Code/config')
-    config = ('postgres_config.ini')
-    configp = configparser.ConfigParser()
-    configp.read(localpath/ config)
+    
+    ##Code below to run locally
+    #localpath = Path(Path.home()/'Code/config')
+    #config = ('postgres_config.ini')
+    #configp = configparser.ConfigParser()
+    #configp.read(localpath/ config)
 
-    if cfg == 'jobs':
-        c = configp['jobs']
-        #host = c.get('server')
-        db = c.get('dbname')
-        #username = c.get('username')
-        #password = c.get('password')
-        return db
+    #if cfg == 'jobs':
+    #    c = configp['jobs']
+    #    #host = c.get('server')
+    #    db = c.get('dbname')
+    #    #username = c.get('username')
+    #    #password = c.get('password')
+    #    return db
         #return host,db,username,password;
 
 
 
 def create_connection():
     """Create database connection to to postgres"""
-    stat = subprocess.call(["systemctl", "is-active", "--quiet", "postgresql"])
-    db_name = readConfig('jobs')
+    #stat = subprocess.call(["systemctl", "is-active", "--quiet", "postgresql"])
+    #db_name = readConfig('jobs')
 
     #checking to see if postgres is actually running
-    if stat == 0:
-        engine = create_engine(f'postgresql+psycopg2://{os.getlogin()}@localhost/{db_name}') 
 
-        conn = engine.connect()
+    #if stat == 0:
+    uri = os.environ['DATABASE_URL']
+    if uri.startswith('postgres://'):
+        uri = uri.replace("postgres://", "postgresql://", 1)
+    engine = create_engine(uri) 
+
+    conn = engine.connect()
         #rs = conn.execute("SELECT * FROM pg_catalog.pg_database WHERE datname = 'posted_jobs'")
-        return conn
-    else: 
-        print('Cannot Connect to DB')
+    return conn
+    #else: 
+    #    print('Cannot Connect to DB')
 
 
 def create_table(conn):
