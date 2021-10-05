@@ -9,7 +9,7 @@ import pandas as pd
 
 
 
-def readConfig(cfg):
+#def readConfig(cfg):
     
     ##Code below to run locally
     #localpath = Path(Path.home()/'Code/config')
