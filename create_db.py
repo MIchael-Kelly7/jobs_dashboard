@@ -217,7 +217,7 @@ def create_views(conn):
                                 group by j.job_id, tf.fips_code);"""
     
 
-    sqls = (create_job_fips_vw, create_days_posted_vw, create_count_by_co_vw, create_count_by_bu_vw, create_no_county_job_vw, create_no_county_counts )
+    sqls = (create_job_fips_vw, create_days_posted_vw, create_count_by_co_vw, create_count_by_bu_vw, create_no_county_job_vw, create_no_county_counts, create_job_list_vw)
     for sql in sqls:
         conn.execute(sql)
     
