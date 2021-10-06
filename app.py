@@ -70,7 +70,7 @@ server = app.server
     #print("Central time:", datetime_central.strftime("%H:%M:%S"))
 
 # The code below would have been part of the scheduled function, instead I moved it out of the indent and commented out the return and the line after that picks up these variables.
-#gather_data()
+gather_data()
 print('running update data')
 with create_connection() as conn:
     dfsql = pd.read_sql('select fips_code, location, case when job_count = 0 THEN NULL else job_count end as job_count from count_by_co_vw', conn)
