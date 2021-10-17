@@ -39,7 +39,7 @@ def scroll_page():
         driver.execute_script("document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollBy(0,12000)")
         #Initially tried to use a wait to wait for the element to be stale, but there wasn't really a great option here.
         #I also couldn't use something like is_visible as the element would end up being stale after the page reload. Therefore a simple wait worked.
-        time.sleep(1)
+        time.sleep(3)
         #get the new scroll height
         new_height = driver.execute_script("return document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollHeight")
         #printing out the current and new height to help see how they change.
