@@ -1,6 +1,6 @@
 from create_db import *
 from pathlib import Path
-from tn_jobs import scrape_jobs, scroll_page
+import tn_jobs
 import re
 import numpy as np
 #import smtplib, ssl
@@ -38,7 +38,7 @@ def gather_data():
         #page = scroll_page()
 
         #I believe this should work but will need to wait for a data change in the source to confirm this.
-        html = scrape_jobs(scroll_page())
+        html = tn_jobs.scrape_jobs(tn_jobs.scroll_page())
 
 
         #Using the info from the html variable to create the data, keep in mind, here they are simply the HTML values. 

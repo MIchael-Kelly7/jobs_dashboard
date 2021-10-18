@@ -22,36 +22,34 @@ def scroll_page():
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
-    driver.get('https://careers.edison.tn.gov/psc/hrprdrs/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U')
+    with webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options) as driver:
+        driver.get('https://careers.edison.tn.gov/psc/hrprdrs/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U')
 
-    time.sleep(3)
-    #defining current_height and new_height variables to use in while loop.
-    current_height = 0
-    new_height = 1
+        time.sleep(1)
+        #defining current_height and new_height variables to use in while loop.
+        current_height = 0
+        new_height = 1
 
-    #This will compare current_height to new_height until they equal each other. Values are based on the scroll height of the element. 
-    #Each scroll should reload the page, so the element has to be re-established within the loop, otherwise the element will be stale.
-    while current_height != new_height:
-        #set current_height = scrollheight
-        current_height = driver.execute_script("return document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollHeight")
-        element = driver.find_element_by_id(r"win0divHRS_AGNT_RSLT_I\$grid\$0")
-        driver.execute_script("document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollBy(0,12000)")
-        #Initially tried to use a wait to wait for the element to be stale, but there wasn't really a great option here.
-        #I also couldn't use something like is_visible as the element would end up being stale after the page reload. Therefore a simple wait worked.
-        time.sleep(3)
-        driver.execute_script("document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollBy(0,12000)")
-        time.sleep(3)
-        #get the new scroll height
-        new_height = driver.execute_script("return document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollHeight")
-        #printing out the current and new height to help see how they change.
-        print(current_height, new_height)
+        #This will compare current_height to new_height until they equal each other. Values are based on the scroll height of the element. 
+        #Each scroll should reload the page, so the element has to be re-established within the loop, otherwise the element will be stale.
+        while current_height != new_height:
+            #set current_height = scrollheight
+            current_height = driver.execute_script("return document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollHeight")
+            element = driver.find_element_by_id(r"win0divHRS_AGNT_RSLT_I\$grid\$0")
+            driver.execute_script("document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollBy(0,12000)")
+            #Initially tried to use a wait to wait for the element to be stale, but there wasn't really a great option here.
+            #I also couldn't use something like is_visible as the element would end up being stale after the page reload. Therefore a simple wait worked.
+            time.sleep(3)
+            #get the new scroll height
+            new_height = driver.execute_script("return document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollHeight")
+            #printing out the current and new height to help see how they change.
+            print(current_height, new_height)
 
 
-    #assign driver object's page source to the page variable to start scraping. This will be the fully expanded 
-    page = driver.page_source
-    driver.close()
-    return page
+        #assign driver object's page source to the page variable to start scraping. This will be the fully expanded 
+        page = driver.page_source
+        driver.close()
+        return page
 
 
 def scrape_jobs(page):
