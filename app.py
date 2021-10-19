@@ -30,30 +30,9 @@ import json
 response = urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json')
 counties = json.load(response)
 #counties["features"][0]
-load_figure_template("cyborg")
-
-CYBORG = {
-    "external_stylesheets": [dbc.themes.CYBORG],
-    "primary": "#2a9fd6",
-    "secondary": "#555",
-    "selected": "rgba(255, 255, 255, 0.075)",
-    "font_color": "white",
-    "font": "Roboto",
-}
-
-THEME = CYBORG
-
-
-styles = {
-    'pre': {
-        'border': 'thin lightgrey solid',
-        'overflowX': 'scroll'
-    }
-}
 
 #server = flask.Flask(__name__)
-app = dash.Dash(__name__, external_stylesheets=THEME["external_stylesheets"])
-server = app.server
+
 #app = dash.Dash(__name__, external_stylesheets=THEME["external_stylesheets"])
 #app.config.from_object(Config())
 
@@ -86,7 +65,29 @@ county_count = df_active['location'].nunique()
 print('final county count:', county_count)
 df_inactive = df_job_list[df_job_list['active'] == False].sort_values('inactive', ascending=False)
 #return dfsql,longest_posted, df_active, job_count, county_count, df_inactive
+load_figure_template("cyborg")
 
+CYBORG = {
+    "external_stylesheets": [dbc.themes.CYBORG],
+    "primary": "#2a9fd6",
+    "secondary": "#555",
+    "selected": "rgba(255, 255, 255, 0.075)",
+    "font_color": "white",
+    "font": "Roboto",
+}
+
+THEME = CYBORG
+
+
+styles = {
+    'pre': {
+        'border': 'thin lightgrey solid',
+        'overflowX': 'scroll'
+    }
+}
+
+app = dash.Dash(__name__, external_stylesheets=THEME["external_stylesheets"])
+server = app.server
 
 #dfsql,longest_posted, df_active, job_count, county_count, df_inactive = update_data()
 
