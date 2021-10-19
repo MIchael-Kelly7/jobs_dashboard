@@ -24,7 +24,7 @@ from datetime import datetime
 
 
 import plotly.express as px
-from create_db import create_connection, check_average
+import create_db
 from urllib.request import urlopen
 import json
 response = urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json')
@@ -51,7 +51,7 @@ counties = json.load(response)
 # The code below would have been part of the scheduled function, instead I moved it out of the indent and commented out the return and the line after that picks up these variables.
 gather_data.gather_data()
 print('running update data')
-with create_connection() as conn:
+with create_db.create_connection() as conn:
     dfsql = pd.read_sql('select fips_code, location, case when job_count = 0 THEN NULL else job_count end as job_count from count_by_co_vw', conn)
     df_job_list = pd.read_sql('select * from job_list_vw', conn)
     df_days_posted = pd.read_sql('select distinct max(current_date-post_date) from jobs where active = true order by 1 desc', conn)
