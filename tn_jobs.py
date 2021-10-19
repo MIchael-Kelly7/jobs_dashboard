@@ -25,7 +25,7 @@ def scroll_page():
     with webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options) as driver:
         driver.get('https://careers.edison.tn.gov/psc/hrprdrs/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U')
 
-        #time.sleep(2)
+        time.sleep(2)
         #defining current_height and new_height variables to use in while loop.
         current_height = 0
         new_height = 1
