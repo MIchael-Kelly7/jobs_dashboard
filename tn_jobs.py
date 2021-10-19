@@ -50,7 +50,6 @@ def scroll_page():
 
         #assign driver object's page source to the page variable to start scraping. This will be the fully expanded 
         page = driver.page_source
-        driver.close()
         return page
 
 
