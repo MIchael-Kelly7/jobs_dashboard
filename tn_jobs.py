@@ -25,7 +25,7 @@ def scroll_page():
     with webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options) as driver:
         driver.get('https://careers.edison.tn.gov/psc/hrprdrs/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Page=HRS_APP_SCHJOB_FL&Action=U')
 
-        time.sleep(3)
+        #time.sleep(2)
         #defining current_height and new_height variables to use in while loop.
         current_height = 0
         new_height = 1
@@ -41,7 +41,7 @@ def scroll_page():
             #I also couldn't use something like is_visible as the element would end up being stale after the page reload. Therefore a simple wait worked.
             time.sleep(1)
             driver.execute_script("document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollBy(0,12000)")
-            time.sleep(2)
+            #time.sleep(2)
             #get the new scroll height
             new_height = driver.execute_script("return document.getElementById('win0divHRS_AGNT_RSLT_I\$grid\$0').scrollHeight")
             #printing out the current and new height to help see how they change.
