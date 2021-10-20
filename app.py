@@ -251,7 +251,7 @@ app.layout = html.Div([
     html.Div(paragraph, style={'fontSize': '1.5em', 'fontWeight': 'bold'}),
     dcc.Graph(
         id='active-job-postings',
-        figure={}
+        figure=fig
     ),
     hr,
     html.Div(active_jobs_descr, style={'fontSize': '1.5em', 'fontWeight': 'bold'}),
