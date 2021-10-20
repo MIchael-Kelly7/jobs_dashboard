@@ -29,7 +29,26 @@ from urllib.request import urlopen
 import json
 response = urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json')
 counties = json.load(response)
+#counties["features"][0]
 
+#server = flask.Flask(__name__)
+
+#app = dash.Dash(__name__, external_stylesheets=THEME["external_stylesheets"])
+#app.config.from_object(Config())
+
+## The AP scheduler function was originally intended to refresh the data in the chart every day, however I decided it was cleaner to simply close and restart the app to do this.
+#scheduler = APScheduler()
+#scheduler.init_app(app)
+#scheduler.start()
+
+#scheduler function left for reference
+#@scheduler.task('cron', id='do_update_data', hour=5)
+#def update_data():
+    #tz_central = pytz.timezone('America/Chicago') 
+    #datetime_central = datetime.now(tz_central)
+    #print("Central time:", datetime_central.strftime("%H:%M:%S"))
+
+# The code below would have been part of the scheduled function, instead I moved it out of the indent and commented out the return and the line after that picks up these variables.
 load_figure_template("cyborg")
 
 CYBORG = {
@@ -53,62 +72,25 @@ styles = {
 
 app = dash.Dash(__name__, external_stylesheets=THEME["external_stylesheets"])
 server = app.server
-#counties["features"][0]
-
-#server = flask.Flask(__name__)
-
-#app = dash.Dash(__name__, external_stylesheets=THEME["external_stylesheets"])
-#app.config.from_object(Config())
-
-## The AP scheduler function was originally intended to refresh the data in the chart every day, however I decided it was cleaner to simply close and restart the app to do this.
-#scheduler = APScheduler()
-#scheduler.init_app(app)
-#scheduler.start()
-
-#scheduler function left for reference
-#@scheduler.task('cron', id='do_update_data', hour=5)
-#def update_data():
-    #tz_central = pytz.timezone('America/Chicago') 
-    #datetime_central = datetime.now(tz_central)
-    #print("Central time:", datetime_central.strftime("%H:%M:%S"))
-
-# The code below would have been part of the scheduled function, instead I moved it out of the indent and commented out the return and the line after that picks up these variables.
-gather_data.gather_data()
-print('running update data')
-with create_db.create_connection() as conn:
-    dfsql = pd.read_sql('select fips_code, location, case when job_count = 0 THEN NULL else job_count end as job_count from count_by_co_vw', conn)
-    df_job_list = pd.read_sql('select * from job_list_vw', conn)
-    df_days_posted = pd.read_sql('select distinct max(current_date-post_date) from jobs where active = true order by 1 desc', conn)
-    print('done with db')
-    conn.close()
-longest_posted = df_days_posted.iloc[0,0]
-df_active = df_job_list[df_job_list['active'] == True]
-job_count = df_active['job_id'].count()
-print('final job count:',job_count)
-county_count = df_active['location'].nunique()
-print('final county count:', county_count)
-df_inactive = df_job_list[df_job_list['active'] == False].sort_values('inactive', ascending=False)
-#return dfsql,longest_posted, df_active, job_count, county_count, df_inactive
-
 
 #dfsql,longest_posted, df_active, job_count, county_count, df_inactive = update_data()
 
 #This generates the map.
-fig = px.choropleth(dfsql, geojson=counties, locations='fips_code',  color=('job_count'),
-                           #color_continuous_scale="Viridis",
-                           #color_continuous_scale="jet",
-                           range_color=(0, 50),
-                           scope="usa",
-                           labels={'fips_code':'Fip Code', 'job_count':'Active Job Postings'},
-                           hover_name='location',
-                           #template='plotly_dark',
-                           title='State of TN Jobs'
-                          )
+# fig = px.choropleth(dfsql, geojson=counties, locations='fips_code',  color=('job_count'),
+#                            #color_continuous_scale="Viridis",
+#                            #color_continuous_scale="jet",
+#                            range_color=(0, 50),
+#                            scope="usa",
+#                            labels={'fips_code':'Fip Code', 'job_count':'Active Job Postings'},
+#                            hover_name='location',
+#                            #template='plotly_dark',
+#                            title='State of TN Jobs'
+#                           )
 
-#This zooms to the state of TN.
-fig.update_geos(fitbounds="locations")
-fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-fig.update_layout(clickmode='event+select')
+# #This zooms to the state of TN.
+# fig.update_geos(fitbounds="locations")
+# fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+# fig.update_layout(clickmode='event+select')
 
 
 
@@ -129,7 +111,7 @@ data_table = dash_table.DataTable(
     {"name": 'Department', "id": 'dept'},
     {"name": 'Days Posted', "id": 'days_posted'},
     {"name": 'Probation period', "id": 'probation'}],
-    data=df_active.to_dict('records'),
+    data=[],
     page_size=page_size,
     filter_action='native',
     sort_action='native',
@@ -165,7 +147,7 @@ inactive_jobs = dash_table.DataTable(
     {"name": 'Department', "id": 'dept'},
     {"name": 'Inactive Date', "id": 'inactive'},
     {"name": 'Date Originally Posted', "id": 'post_date'}],
-    data=df_inactive[:200].to_dict('records'),
+    data=[],
     page_size=page_size,
     filter_action='native',
     sort_action='native',
@@ -195,7 +177,7 @@ inactive_jobs = dash_table.DataTable(
 cards = [
     dbc.Card(
         [
-            html.H2(f"{job_count}", className="card-title"),
+            html.H2(id='job_count', children=[], className="card-title"),
             html.P("Currently Active Job Postings", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
@@ -203,7 +185,7 @@ cards = [
     ),
     dbc.Card(
         [
-            html.H2(f"{county_count}", className="card-title"),
+            html.H2(id='county_count', children=[], className="card-title"),
             html.P("Counties with Job Openings", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
@@ -212,7 +194,7 @@ cards = [
     ),
     dbc.Card(
         [
-            html.H2(f"{longest_posted}", className="card-title"),
+            html.H2(id='longest_posted', children=[], className="card-title"),
             html.P("Longest Active Job Opening (Days)", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
@@ -222,16 +204,16 @@ cards = [
 ]
 
 #setting up the graph HTML.
-graphs = html.Div(
-    [
-        dbc.Row(
-            [
-                dbc.Col(dcc.Graph(figure=fig), lg=10),
-            ],
-            className="mt-4",
-        )
-    ]
-)
+# graphs = html.Div(
+#     [
+#         dbc.Row(
+#             [
+#                 dbc.Col(dcc.Graph(figure={}}), lg=10),
+#             ],
+#             className="mt-4",
+#         )
+#     ]
+# )
 #Heading
 heading = html.H1("State of Tennessee Job Postings", className="bg-primary text-white p-2", style={"textAlign": 'center'})
 hr = html.Hr(style={'color': 'white'})
@@ -257,7 +239,7 @@ app.layout = html.Div([
     html.Div(paragraph, style={'fontSize': '1.5em', 'fontWeight': 'bold'}),
     dcc.Graph(
         id='active-job-postings',
-        figure=fig
+        figure={}
     ),
     hr,
     html.Div(active_jobs_descr, style={'fontSize': '1.5em', 'fontWeight': 'bold'}),
@@ -268,6 +250,60 @@ app.layout = html.Div([
 ])
 
 
+
+#App callback function. This is to call the data update after page load
+@app.callback(
+    [Output(component_id='jobs_table', component_property='data'),
+     Output(component_id='active-job-postings', component_property='figure'),
+     Output(component_id='inactive_jobs_table', component_property='data'),
+     Output(component_id='job_count', component_property='children'),
+     Output(component_id='county_count', component_property='children'),
+     Output(component_id='longest_posted', component_property='children')
+     ]
+def update_content():
+    refresh_data()
+    fig = px.choropleth(dfsql, geojson=counties, locations='fips_code',  color=('job_count'),
+                           #color_continuous_scale="Viridis",
+                           #color_continuous_scale="jet",
+                           range_color=(0, 50),
+                           scope="usa",
+                           labels={'fips_code':'Fip Code', 'job_count':'Active Job Postings'},
+                           hover_name='location',
+                           #template='plotly_dark',
+                           title='State of TN Jobs'
+                          )
+    #This zooms to the state of TN.
+    fig.update_geos(fitbounds="locations")
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig.update_layout(clickmode='event+select')
+    
+    job_card = f"{job_count}"
+    county_card = f"{county_count}"
+    longest_card = f"{longest_posted}"
+    
+    jobs_table_data = df_active.to_dict('records')
+    inactive_jobs_data = df_inactive[:200].to_dict('records')
+    
+    
+    return jobs_table_data, fig, inactive_jobs_table, job_card, county_card, longest,card
+    
+
+def refresh_data():
+    gather_data.gather_data()
+    print('running update data')
+    with create_db.create_connection() as conn:
+        dfsql = pd.read_sql('select fips_code, location, case when job_count = 0 THEN NULL else job_count end as job_count from count_by_co_vw', conn)
+        df_job_list = pd.read_sql('select * from job_list_vw', conn)
+        df_days_posted = pd.read_sql('select distinct max(current_date-post_date) from jobs where active = true order by 1 desc', conn)
+        print('done with db')
+    longest_posted = df_days_posted.iloc[0,0]
+    df_active = df_job_list[df_job_list['active'] == True]
+    job_count = df_active['job_id'].count()
+    print('final job count:',job_count)
+    county_count = df_active['location'].nunique()
+    print('final county count:', county_count)
+    df_inactive = df_job_list[df_job_list['active'] == False].sort_values('inactive', ascending=False)
+    return job_count, df_active, county_count, df_inactive, longest_posted, dfsql
 
 
 
