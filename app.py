@@ -189,7 +189,7 @@ inactive_jobs = dash_table.DataTable(
 cards = [
     dbc.Card(
         [
-            html.H2(id='job_count', f"{job_count}", className="card-title"),
+            html.H2(id='job_count', children=[f"{job_count}"], className="card-title"),
             html.P("Currently Active Job Postings", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
@@ -197,7 +197,7 @@ cards = [
     ),
     dbc.Card(
         [
-            html.H2(id='county_count', f"{county_count}", className="card-title"),
+            html.H2(id='county_count', children=[f"{county_count}"], className="card-title"),
             html.P("Counties with Job Openings", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
@@ -206,7 +206,7 @@ cards = [
     ),
     dbc.Card(
         [
-            html.H2(id='longest_posted', f"{longest_posted}", className="card-title"),
+            html.H2(id='longest_posted', children=[f"{longest_posted}"], className="card-title"),
             html.P("Longest Active Job Opening (Days)", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
