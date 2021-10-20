@@ -72,25 +72,37 @@ styles = {
 
 app = dash.Dash(__name__, external_stylesheets=THEME["external_stylesheets"])
 server = app.server
+with create_db.create_connection() as conn:
+        dfsql = pd.read_sql('select fips_code, location, case when job_count = 0 THEN NULL else job_count end as job_count from count_by_co_vw', conn)
+        df_job_list = pd.read_sql('select * from job_list_vw', conn)
+        df_days_posted = pd.read_sql('select distinct max(current_date-post_date) from jobs where active = true order by 1 desc', conn)
+        print('done with db')
+longest_posted = df_days_posted.iloc[0,0]
+df_active = df_job_list[df_job_list['active'] == True]
+job_count = df_active['job_id'].count()
+print('final job count:',job_count)
+county_count = df_active['location'].nunique()
+print('final county count:', county_count)
+df_inactive = df_job_list[df_job_list['active'] == False].sort_values('inactive', ascending=False)
 
 #dfsql,longest_posted, df_active, job_count, county_count, df_inactive = update_data()
 
 #This generates the map.
-# fig = px.choropleth(dfsql, geojson=counties, locations='fips_code',  color=('job_count'),
-#                            #color_continuous_scale="Viridis",
-#                            #color_continuous_scale="jet",
-#                            range_color=(0, 50),
-#                            scope="usa",
-#                            labels={'fips_code':'Fip Code', 'job_count':'Active Job Postings'},
-#                            hover_name='location',
-#                            #template='plotly_dark',
-#                            title='State of TN Jobs'
-#                           )
+fig = px.choropleth(dfsql, geojson=counties, locations='fips_code',  color=('job_count'),
+                           #color_continuous_scale="Viridis",
+                           #color_continuous_scale="jet",
+                           range_color=(0, 50),
+                           scope="usa",
+                           labels={'fips_code':'Fip Code', 'job_count':'Active Job Postings'},
+                           hover_name='location',
+                           #template='plotly_dark',
+                           title='State of TN Jobs'
+                          )
 
-# #This zooms to the state of TN.
-# fig.update_geos(fitbounds="locations")
-# fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-# fig.update_layout(clickmode='event+select')
+#This zooms to the state of TN.
+fig.update_geos(fitbounds="locations")
+fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+fig.update_layout(clickmode='event+select')
 
 
 
@@ -111,7 +123,7 @@ data_table = dash_table.DataTable(
     {"name": 'Department', "id": 'dept'},
     {"name": 'Days Posted', "id": 'days_posted'},
     {"name": 'Probation period', "id": 'probation'}],
-    data=[],
+    data=df_active.to_dict('records'),
     page_size=page_size,
     filter_action='native',
     sort_action='native',
@@ -147,7 +159,7 @@ inactive_jobs = dash_table.DataTable(
     {"name": 'Department', "id": 'dept'},
     {"name": 'Inactive Date', "id": 'inactive'},
     {"name": 'Date Originally Posted', "id": 'post_date'}],
-    data=[],
+    data= df_inactive[:200].to_dict('records'),
     page_size=page_size,
     filter_action='native',
     sort_action='native',
@@ -177,7 +189,7 @@ inactive_jobs = dash_table.DataTable(
 cards = [
     dbc.Card(
         [
-            html.H2(id='job_count', children=[], className="card-title"),
+            html.H2(id='job_count', f"{job_count}", className="card-title"),
             html.P("Currently Active Job Postings", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
@@ -185,7 +197,7 @@ cards = [
     ),
     dbc.Card(
         [
-            html.H2(id='county_count', children=[], className="card-title"),
+            html.H2(id='county_count', f"{county_count}", className="card-title"),
             html.P("Counties with Job Openings", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
@@ -194,7 +206,7 @@ cards = [
     ),
     dbc.Card(
         [
-            html.H2(id='longest_posted', children=[], className="card-title"),
+            html.H2(id='longest_posted', f"{longest_posted}", className="card-title"),
             html.P("Longest Active Job Opening (Days)", className="card-text", style ={'fontSize': '1.5em'}),
         ],
         body=True,
@@ -251,7 +263,7 @@ app.layout = html.Div([
 
 
 
-#App callback function. This is to call the data update after page load
+#App callback function. This is to call the data update after page load. May be added later if more inputs are added.
 @app.callback(
     [Output(component_id='jobs_table', component_property='data'),
      Output(component_id='active-job-postings', component_property='figure'),
