@@ -259,7 +259,7 @@ app.layout = html.Div([
      Output(component_id='job_count', component_property='children'),
      Output(component_id='county_count', component_property='children'),
      Output(component_id='longest_posted', component_property='children')
-     ]
+     ])
 def update_content():
     refresh_data()
     fig = px.choropleth(dfsql, geojson=counties, locations='fips_code',  color=('job_count'),
